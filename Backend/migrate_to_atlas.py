@@ -68,3 +68,39 @@ client_debug = openai.OpenAI(api_key=os.getenv("XAI_API_KEY"), base_url="https:/
 models = client_debug.models.list()
 for m in models.data:
     print(f"Available Model: {m.id}")
+
+
+
+
+
+# import os
+# from pymongo import MongoClient
+
+# # LOCAL: Compass mein jo dikh raha hai wahi naam use karo
+# local_client = MongoClient("mongodb://localhost:27017")
+# local_db = local_client['stock_analysis_db'] # Yahi naam use karo
+
+# # ATLAS: Cloud connection
+# atlas_client = MongoClient("mongodb+srv://AIFSA_User:CANSLIMAI123@cluster0.qeqczeh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+# atlas_db = atlas_client['stock_analysis_db'] # Cloud par bhi yahi database banega
+
+# # Collections list - jo tumhare Compass mein dikh rahe hain
+# collections = ['stocks', 'stocks_cache', 'institutional_cache', 'canslim_results', 'config']
+
+# for coll_name in collections:
+#     print(f"Transferring {coll_name}...")
+#     data = list(local_db[coll_name].find({}))
+#     if data:
+#         atlas_db[coll_name].insert_many(data)
+#         print(f"✅ {coll_name} done!")
+#     else:
+#         print(f"⚠️ {coll_name} khali hai ya nahi mila!")
+
+# print("Migration complete!")
+
+
+
+# from pymongo import MongoClient
+# client = MongoClient("mongodb+srv://AIFSA_User:CANSLIMAI123@cluster0.qeqczeh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+# db = client.stock_analysis_db
+# print(db.list_collection_names())
