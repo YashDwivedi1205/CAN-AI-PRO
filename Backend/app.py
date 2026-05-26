@@ -75,6 +75,11 @@ def add_cors_headers(response):
 # ================================
 # 2. PROXY MECHANISM (GATEWAY)
 # ================================
+
+@app.route('/')
+def home():
+    return jsonify({"status": "Backend is running!"})
+
 def forward_to_colab(path, method='GET', data=None, params=None):
     """Requests ko Colab backend par forward karne ke liye"""
     clean_path = path.lstrip('/')
