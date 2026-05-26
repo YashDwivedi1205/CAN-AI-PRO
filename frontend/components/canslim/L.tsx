@@ -597,7 +597,7 @@ export default function L({ onAuditAction, stocksList = [] }: LProps) {
       try {
         setLoading(true);
         setError(false);
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/sector-leaders`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sector-leaders`);
         if (!res.ok) throw new Error('Network error');
         const data = await res.json();
         if (data.success) {
