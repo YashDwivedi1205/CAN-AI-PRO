@@ -23,7 +23,7 @@ load_dotenv()
 # 1. CONFIGURATION & URLS
 # ================================
 # Render par COLAB_URL ki zaroorat nahi hai
-COLAB_URL = None
+COLAB_URL = os.getenv("COLAB_URL")
 
 GEMINI_API_KEY = os.getenv("Gemini_API_KEY")
 if GEMINI_API_KEY:
@@ -68,7 +68,8 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 @app.after_request
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    # Yahan 'ngrok-skip-browser-warning' add kar diya hai
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,ngrok-skip-browser-warning'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
     return response
 
