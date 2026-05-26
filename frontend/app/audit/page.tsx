@@ -519,13 +519,11 @@ function AuditContent() {
 
         {auditData && !loading && (
           <div className="space-y-6 animate-fade-in">
-            {/* Yahan tumhara wahi pura logic wala design hai */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-2 bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-3xl shadow-xl">
                  <h2 className="text-4xl font-black">{auditData.ticker}</h2>
               </div>
             </div>
-            {/* Baaki code waisa hi hai, bas maine structure maintain kiya hai */}
           </div>
         )}
       </div>
