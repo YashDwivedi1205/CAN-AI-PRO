@@ -1,0 +1,202 @@
+{
+    "ADANIENT": {
+        "ticker": "ADANIENT",
+        "shareholding": {
+            "promoter": 73.97,
+            "fii": 11.64,
+            "dii": 6.71,
+            "public": 7.66
+        },
+        "bulk_deals": []
+    },
+    "ZOMATO": {
+        "ticker": "ZOMATO",
+        "shareholding": {
+            "promoter": 0,
+            "fii": 0,
+            "dii": 0,
+            "public": 0
+        },
+        "bulk_deals": []
+    },
+    "HDFCBANK": {
+        "ticker": "HDFCBANK",
+        "shareholding": {
+            "promoter": 0.0,
+            "fii": 47.67,
+            "dii": 37.0,
+            "public": 15.11
+        },
+        "bulk_deals": []
+    },
+    "RELIANCE": {
+        "ticker": "RELIANCE",
+        "shareholding": {
+            "promoter": 50.0,
+            "fii": 19.09,
+            "dii": 20.1,
+            "public": 10.64
+        },
+        "bulk_deals": []
+    },
+    "ICICIBANK": {
+        "ticker": "ICICIBANK",
+        "shareholding": {
+            "promoter": 0,
+            "fii": 0,
+            "dii": 0,
+            "public": 0
+        },
+        "bulk_deals": []
+    },
+    "PAYTM": {
+        "ticker": "PAYTM",
+        "shareholding": {
+            "promoter": 0,
+            "fii": 0,
+            "dii": 0,
+            "public": 0
+        },
+        "bulk_deals": []
+    },
+    "NYKAA": {
+        "ticker": "NYKAA",
+        "shareholding": {
+            "promoter": 52.1,
+            "fii": 12.15,
+            "dii": 25.36,
+            "public": 10.41
+        },
+        "bulk_deals": []
+    },
+    "YESBANK": {
+        "ticker": "YESBANK",
+        "shareholding": {
+            "promoter": 0.0,
+            "fii": 45.74,
+            "dii": 21.12,
+            "public": 33.12
+        },
+        "bulk_deals": []
+    },
+    "JIOFIN": {
+        "ticker": "JIOFIN",
+        "shareholding": {
+            "promoter": 47.12,
+            "fii": 11.55,
+            "dii": 15.36,
+            "public": 25.77
+        },
+        "bulk_deals": []
+    },
+    "POLICYBZR": {
+        "ticker": "POLICYBZR",
+        "shareholding": {
+            "promoter": 0,
+            "fii": 0,
+            "dii": 0,
+            "public": 0
+        },
+        "bulk_deals": []
+    },
+    "TATASTEEL": {
+        "ticker": "TATASTEEL",
+        "shareholding": {
+            "promoter": 33.19,
+            "fii": 17.49,
+            "dii": 26.98,
+            "public": 22.14
+        },
+        "bulk_deals": []
+    },
+    "SBIN": {
+        "ticker": "SBIN",
+        "shareholding": {
+            "promoter": 55.5,
+            "fii": 10.34,
+            "dii": 27.04,
+            "public": 6.97
+        },
+        "bulk_deals": []
+    },
+    "INFY": {
+        "ticker": "INFY",
+        "shareholding": {
+            "promoter": 14.52,
+            "fii": 30.27,
+            "dii": 41.08,
+            "public": 13.69
+        },
+        "bulk_deals": []
+    },
+    "BAJFINANCE": {
+        "ticker": "BAJFINANCE",
+        "shareholding": {
+            "promoter": 54.7,
+            "fii": 21.49,
+            "dii": 14.86,
+            "public": 8.77
+        },
+        "bulk_deals": []
+    },
+    "AXISBANK": {
+        "ticker": "AXISBANK",
+        "shareholding": {
+            "promoter": 8.15,
+            "fii": 42.58,
+            "dii": 42.65,
+            "public": 6.61
+        },
+        "bulk_deals": []
+    },
+    "ITC": {
+        "ticker": "ITC",
+        "shareholding": {
+            "promoter": 0,
+            "fii": 0,
+            "dii": 0,
+            "public": 0
+        },
+        "bulk_deals": []
+    },
+    "DLF": {
+        "ticker": "DLF",
+        "shareholding": {
+            "promoter": 74.08,
+            "fii": 14.82,
+            "dii": 5.78,
+            "public": 5.34
+        },
+        "bulk_deals": []
+    },
+    "VEDL": {
+        "ticker": "VEDL",
+        "shareholding": {
+            "promoter": 56.38,
+            "fii": 12.15,
+            "dii": 15.31,
+            "public": 16.05
+        },
+        "bulk_deals": []
+    },
+    "IDFCFIRSTB": {
+        "ticker": "IDFCFIRSTB",
+        "shareholding": {
+            "promoter": 0.0,
+            "fii": 36.76,
+            "dii": 22.38,
+            "public": 33.05
+        },
+        "bulk_deals": []
+    },
+    "GMRINFRA": {
+        "ticker": "GMRINFRA",
+        "shareholding": {
+            "promoter": 0,
+            "fii": 0,
+            "dii": 0,
+            "public": 0
+        },
+        "bulk_deals": []
+    }
+}

@@ -1,4 +1,4 @@
-import { MessageSquare, TrendingUp, Search, Info } from 'lucide-react'; // Icons
+import { MessageSquare, TrendingUp, Search, Info, Activity, ShieldCheck } from 'lucide-react'; // Added Activity icon
 import React from 'react';
 
 // Interface for navigation cards
@@ -10,7 +10,6 @@ interface NavCardProps {
 }
 
 // Reusable Card Component
-
 const NavCard: React.FC<NavCardProps> = ({ href, icon, title, description }) => (
   <a
     href={href}
@@ -41,11 +40,12 @@ export default function HomePage() {
         Your personal stock market assistant. Get data-driven insights and recommendations.
       </p>
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+      {/* Grid updated to handle 5 cards better */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl w-full">
         
         {/* Card 1: Chat with AI */}
         <NavCard 
-          href="/chat" // (Assuming this is your chat page)
+          href="/chat"
           icon={<MessageSquare />}
           title="Chat with AI"
           description="Talk to the AI about market trends, predictions, and financial insights."
@@ -67,12 +67,28 @@ export default function HomePage() {
           description="View complete fundamental and technical analysis of any stock (e.g., RELIANCE)."
         />
 
-        {/* Card 4: About Page */}
+        {/* Card 4: CANSLIM Analysis (New Button) */}
+        <NavCard 
+          href="/canslim" 
+          icon={<Activity />}
+          title="CANSLIM Strategy"
+          description="Filter high-growth stocks based on Earnings, New products, and Market direction."
+        />
+
+        {/* Card 5: About Page */}
         <NavCard 
           href="/about"
           icon={<Info />}
           title="About This Platform"
           description="Learn more about what this project does, its key features, and how it works."
+        />
+
+        {/* Card: 7-Level Audit (New) */}
+        <NavCard 
+          href="/audit"
+          icon={<ShieldCheck />}
+          title="7-Level Stock Audit"
+          description="Perform a deep dive analysis into any specific stock using the full 7-Layer CANSLIM Verdict."
         />
       </div>
     </div>

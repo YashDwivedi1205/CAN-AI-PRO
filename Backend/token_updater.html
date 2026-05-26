@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIFSA Upstox Token Updater</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 2rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 400px; text-align: center; }
+        h2 { color: #00d2ff; }
+        textarea { width: 100%; height: 100px; background: #2d2d2d; border: 1px solid #444; color: white; border-radius: 6px; padding: 10px; margin: 15px 0; resize: none; box-sizing: border-box; }
+        button { background: #00d2ff; color: #121212; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
+        button:hover { background: #0099cc; }
+        #status { margin-top: 15px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Upstox Access Token</h2>
+        <p>Paste your daily token below:</p>
+        <textarea id="tokenInput" placeholder="Enter Access Token..."></textarea>
+        <button onclick="updateToken()">Update Backend Token</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function updateToken() {
+            // .strip() ko badal kar .trim() kar diya hai
+            const token = document.getElementById('tokenInput').value.trim(); 
+            const statusDiv = document.getElementById('status');
+            
+            if (!token) {
+                statusDiv.innerText = "⚠️ Please paste a token first!";
+                statusDiv.style.color = "yellow";
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/set-upstox-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    statusDiv.innerText = "✅ Token Updated Successfully!";
+                    statusDiv.style.color = "#00ff88";
+                    document.getElementById('tokenInput').value = "";
+                } else {
+                    statusDiv.innerText = "❌ Error: " + result.message;
+                    statusDiv.style.color = "#ff4444";
+                }
+            } catch (err) {
+                statusDiv.innerText = "❌ Backend not running on port 5000";
+                statusDiv.style.color = "#ff4444";
+            }
+        }
+    </script>
+</body>
+</html>

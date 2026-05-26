@@ -27,7 +27,7 @@ else:
         db = None
 
 # Collections used across the project
-if db:
+if db is not None:
     TICKERS_COLLECTION = db.tickers_list
     ANALYSIS_CACHE_COLLECTION = db.analysis_cache
 else:

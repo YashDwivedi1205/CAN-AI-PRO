@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -61,13 +60,13 @@ interface LiveStockDetails {
   additional_metrics: AdditionalMetrics;
 }
 
-// ---------- PRICE CHART COMPONENT (Unchanged) ----------
+// ---------- PRICE CHART COMPONENT ----------
 interface PriceChartProps {
   data: ChartDataPoint[];
   timeframe: string;
 }
 
-const PriceChart: React.FC<PriceChartProps> = ({ data }) => {
+const PriceChart: React.FC<PriceChartProps> = ({ data, timeframe }) => {
   const chartData = useMemo(() => {
     if (!data || data.length === 0) return { datasets: [] };
 
@@ -75,21 +74,36 @@ const PriceChart: React.FC<PriceChartProps> = ({ data }) => {
     const color = isPositiveTrend ? 'rgb(16,185,129)' : 'rgb(239,68,68)';
 
     return {
-      labels: data.map((d) => new Date(d.date).toLocaleDateString()),
+      // Logic: 1 Day ke liye ISO string se sirf Time nikalna (e.g., 09:15 AM)
+      labels: data.map((d) => {
+        const dateObj = new Date(d.date);
+        
+        // Agar Date object invalid hai (fallback check)
+        if (isNaN(dateObj.getTime())) return d.date; 
+
+        if (timeframe === '1 Day') {
+          return dateObj.toLocaleTimeString('en-IN', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: false // 24-hour format zyada professional lagta hai trading mein
+          });
+        }
+        return dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+      }),
       datasets: [
         {
-          label: 'Closing Price (INR)',
+          label: 'Price (INR)',
           data: data.map((d) => d.price),
           borderColor: color,
           backgroundColor: color + '33',
-          pointRadius: 1.5,
+          pointRadius: timeframe === '1 Day' ? 0 : 1.5,
           borderWidth: 2,
           fill: true,
-          tension: 0.1,
+          tension: 0.3,
         },
       ],
     };
-  }, [data]);
+  }, [data, timeframe]);
 
   const options = {
     responsive: true,
@@ -98,6 +112,8 @@ const PriceChart: React.FC<PriceChartProps> = ({ data }) => {
       legend: { display: false },
       title: { display: false },
       tooltip: {
+        mode: 'index',
+        intersect: false,
         callbacks: {
           label: (context: any) => `Price: ₹${context.parsed.y.toFixed(2)}`,
         },
@@ -105,11 +121,13 @@ const PriceChart: React.FC<PriceChartProps> = ({ data }) => {
     },
     scales: {
       x: {
-        title: { display: true, text: 'Date' },
-        ticks: { maxTicksLimit: 10 },
+        title: { display: true, text: timeframe === '1 Day' ? 'Time' : 'Date' },
+        ticks: { maxTicksLimit: 8, font: { size: 10 } },
+        grid: { display: false }
       },
       y: {
         title: { display: true, text: 'Price (₹)' },
+        ticks: { font: { size: 10 } }
       },
     },
   };
@@ -133,23 +151,30 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
 
   const [liveDetails, setLiveDetails] = useState<LiveStockDetails | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(true);
-  
-  // FIX: '1 Day' ko wapas add kiya gaya, default '1 Week' set kiya
-  const [activeTimeframe, setActiveTimeframe] = useState('1 Week');
-  const timeframes = ['1 Day', '1 Week', '6 Months', '1 Year', '5 Year']; 
-  // --------------
+  const [activeTimeframe, setActiveTimeframe] = useState('1 Day');
 
   // ---------- DATA FETCH ----------
   useEffect(() => {
     const fetchDetails = async () => {
       setIsLoadingDetails(true);
-      const API_URL = `https://aifsa.onrender.com/api/full-analysis/${stock.ticker}`;
+      
+      // Update this URL with your new Ngrok URL from Colab
+      const NGROK_URL = "https://unpresumed-arline-dealate.ngrok-free.dev"; 
+      const API_URL = `http://localhost:5001/api/full-analysis/${stock.ticker}`;
+      
       try {
-        const response = await fetch(API_URL, { cache: 'no-store' });
+        const response = await fetch(API_URL, { 
+          cache: 'no-store',
+          headers: {
+            "ngrok-skip-browser-warning": "69420",
+          }
+        });
+        
         if (!response.ok) throw new Error('Failed to fetch detailed stock data');
 
         const data: LiveStockDetails = await response.json();
         setLiveDetails(data);
+        setActiveTimeframe('1 Day'); 
       } catch (error) {
         console.error(`Error fetching details for ${stock.ticker}:`, error);
         setLiveDetails(null);
@@ -160,7 +185,50 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
     fetchDetails();
   }, [stock.ticker]);
 
-  // ---------- LOADING STATE ----------
+  // ---------- TIME FRAME SEQUENCE LOGIC ----------
+  const renderTimeframeButtons = () => {
+    if (!liveDetails || !liveDetails.historical_data) return null;
+
+    const tfConfigs = [
+      { id: '1 Day', min: 2 },
+      { id: '1 Day', min: 2 }, // Extra check for safety
+      { id: '1 Week', min: 5 },
+      { id: '1 Month', min: 15 },
+      { id: '3 Month', min: 50 },
+      { id: '6 Month', min: 100 },
+      { id: '1 Year', min: 200 },
+      { id: '5 Year', min: 800 }
+    ];
+
+    const visibleTfs = [];
+    const seen = new Set();
+    for (const tf of tfConfigs) {
+      if (seen.has(tf.id)) continue;
+      const count = liveDetails.historical_data[tf.id]?.length || 0;
+      if (count >= tf.min) {
+        visibleTfs.push(tf.id);
+        seen.add(tf.id);
+      } else {
+        break; 
+      }
+    }
+
+    return visibleTfs.map((tfId) => (
+      <button
+        key={tfId}
+        onClick={() => setActiveTimeframe(tfId)}
+        className={`px-4 py-2 text-sm font-semibold rounded-full transition whitespace-nowrap ${
+          activeTimeframe === tfId
+            ? 'bg-indigo-600 text-white shadow-lg'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        }`}
+      >
+        {tfId}
+      </button>
+    ));
+  };
+
+  // ---------- LOADING / ERROR STATES ----------
   if (isLoadingDetails) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
@@ -171,7 +239,6 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
     );
   }
 
-  // ---------- ERROR HANDLING ----------
   if (!liveDetails) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
@@ -184,12 +251,10 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
         >
           Back to Trending List
         </button>
-        
       </div>
     );
   }
 
-  // ---------- METRICS ----------
   const initialMetrics = [
     { key: 'Market Cap', value: liveDetails.fundamentals.MarketCap ?? 'N/A', unit: '', isHighlight: false },
     { key: 'P/E Ratio', value: liveDetails.fundamentals.TrailingPE ?? 'N/A', unit: 'x', isHighlight: false },
@@ -197,10 +262,10 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
     { key: 'Debt/Equity', value: liveDetails.fundamentals.DebtToEquity ?? 'N/A', unit: '', isHighlight: false },
   ];
 
-  const additionalMetricsList = Object.entries(liveDetails.additional_metrics).map(
+  const additionalMetricsList = Object.entries(liveDetails?.additional_metrics || {}).map(
     ([key, value]) => ({
-      key,
-      value,
+      key: key.replace(/_/g, ' ').toUpperCase(),
+      value: value || 'N/A',
       unit: '',
       isHighlight: key.includes('High') || key.includes('Low'),
     })
@@ -209,24 +274,20 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
   const financialMetrics = [...initialMetrics, ...additionalMetricsList];
   const hasNews = liveDetails.latest_news && liveDetails.latest_news.length > 0;
 
-
-  // ---------- RENDER ----------
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans">
       <div className="max-w-6xl mx-auto">
-        {/* HEADER */}
         <header className="mb-6">
           <button
             onClick={onBack}
             className="flex items-center text-indigo-600 font-semibold mb-6 p-2 rounded-full hover:bg-indigo-100 transition"
-            aria-label="Back to Trending List"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Trending List
           </button>
 
           <div className={`p-6 rounded-2xl shadow-xl ${bgColor} border border-gray-100`}>
-            <div className="flex justify-between items-start mb-4"> {/* Added mb-4 for spacing */}
+            <div className="flex justify-between items-start mb-4">
               <div>
                 <h1 className="text-4xl font-extrabold text-gray-900">
                   {stock.ticker} - Rank #{stock.rank}
@@ -243,7 +304,6 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
               </div>
             </div>
         
-            {/* LIVE ADVICE: Updated from previous step */}
             <div className="mt-4 p-4 rounded-lg bg-white shadow-inner border-t border-gray-100">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center">
@@ -260,7 +320,7 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
                                     : 'text-yellow-600'
                             }`}
                         >
-                            {liveDetails.advice.toUpperCase()}
+                            {(liveDetails.advice || 'N/A').toUpperCase()}
                         </em>
                     </div>
                     <div className="text-right">
@@ -270,7 +330,7 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
                             liveDetails.risk_level === 'High' ? 'bg-red-100 text-red-700' : 
                             'bg-yellow-100 text-yellow-700'
                         }`}>
-                            {liveDetails.risk_level.toUpperCase()}
+                            {(liveDetails.risk_level || 'UNKNOWN').toUpperCase()}
                         </span>
                     </div>
                 </div>
@@ -278,11 +338,9 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
                     <strong>Reason:</strong> {liveDetails.reason_summary}
                 </p>
             </div>
-            {/* END LIVE ADVICE */}
           </div>
         </header>
 
-        {/* METRICS (Unchanged) */}
         <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4 flex items-center">
           <DollarSign className="w-6 h-6 mr-2 text-green-600" /> Key Financial Metrics
         </h2>
@@ -303,26 +361,13 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
           ))}
         </div>
 
-        {/* PRICE CHART (1 Day button added back) */}
         <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4 flex items-center">
           <BarChart className="w-6 h-6 mr-2 text-blue-600" /> Price Chart Analysis
         </h2>
 
         <div className="bg-white p-6 rounded-2xl shadow-xl mb-8">
           <div className="flex space-x-2 border-b border-gray-200 pb-4 mb-4 overflow-x-auto">
-            {timeframes.map((timeframe) => (
-              <button
-                key={timeframe}
-                onClick={() => setActiveTimeframe(timeframe)}
-                className={`px-4 py-2 text-sm font-semibold rounded-full transition whitespace-nowrap ${
-                  activeTimeframe === timeframe
-                    ? 'bg-indigo-600 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {timeframe}
-              </button>
-            ))}
+            {renderTimeframeButtons()}
           </div>
 
           <div className="h-96 w-full flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200 p-2">
@@ -337,7 +382,6 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
           </div>
         </div>
 
-        {/* NEWS SECTION (Rendering check added) */}
         <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4 flex items-center">
           <Newspaper className="w-6 h-6 mr-2 text-red-600" /> Relevant News Articles
           <span

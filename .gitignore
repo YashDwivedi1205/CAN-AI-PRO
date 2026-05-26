@@ -14,3 +14,28 @@ frontend/out/
 
 .DS_Store
 *.local
+
+# --- System & Editor ---
+.DS_Store
+.vscode/
+.idea/
+
+# --- Backend Junk ---
+Backend/__pycache__/
+Backend/*.pyc
+Backend/.venv/
+Backend/env/
+Backend/venv/
+Backend/.env
+
+# --- Frontend Junk ---
+frontend/.next/
+frontend/node_modules/
+frontend/.env.local
+frontend/.env
+frontend/out/
+frontend/build/
+
+# --- Database & Cache ---
+*.sqlite
+*.log
