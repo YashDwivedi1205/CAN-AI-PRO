@@ -9,7 +9,6 @@ import openai
 import yfinance as yf
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from pyngrok import ngrok
 from datetime import datetime, timedelta, timezone
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
@@ -18,12 +17,19 @@ import google.generativeai as genai
 from pymongo import MongoClient
 from groq import Groq
 
+# Conditional Import for ngrok
+if os.environ.get("RENDER") is None:
+    from pyngrok import ngrok
+
 load_dotenv()
 
 # ================================
 # 1. CONFIGURATION & URLS
 # ================================
-COLAB_URL = "https://unpresumed-arline-dealate.ngrok-free.dev" 
+# Local ke liye ngrok URL, Render ke liye null
+COLAB_URL = None
+if os.environ.get("RENDER") is None:
+    COLAB_URL = "https://unpresumed-arline-dealate.ngrok-free.dev"
 
 GEMINI_API_KEY = os.getenv("Gemini_API_KEY")
 if GEMINI_API_KEY:
@@ -31,25 +37,35 @@ if GEMINI_API_KEY:
     model = genai.GenerativeModel('gemini-1.5-flash')
     print("✅ Gemini API Key Loaded!")
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")  # Colab wali active key
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 client_groq = openai.OpenAI(
     api_key=GROQ_API_KEY,
     base_url="https://api.groq.com/openai/v1"
 )
 
 # MongoDB Connection
-MONGO_URI = "mongodb+srv://CAN_AI_User:pCFwmOM8kGFngiex@cluster0.jnaiqtg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://CAN_AI_User:pCFwmOM8kGFngiex@cluster0.jnaiqtg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 try:
     client = MongoClient(MONGO_URI)
     db = client['stock_analysis_db']
-    print("✅ MongoDB Atlas Connected Locally!")
+    print("✅ MongoDB Atlas Connected Successfully!")
 except Exception as e:
     print(f"❌ MongoDB Connection Failed: {e}")
     db = None
 
 app = Flask(__name__)
-# CORS setting ko poora allow kiya taaki browser network error na de
 CORS(app, resources={r"/*": {"origins": "*"}})
+
+# ================================
+# NGrok Setup for Local Development
+# ================================
+if os.environ.get("RENDER") is None:
+    try:
+        port = 5000
+        public_url = ngrok.connect(port).public_url
+        print(f"🚀 ngrok tunnel established: {public_url}")
+    except Exception as e:
+        print(f"⚠️ ngrok could not be started: {e}")
 
 # ================================
 # 2. PROXY MECHANISM (GATEWAY)
