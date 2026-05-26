@@ -37,7 +37,8 @@ const SLayer: React.FC<SLayerProps> = ({ onAuditAction }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:5001/api/scan-nifty-s?t=${Date.now()}`);
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${baseUrl}/api/scan-nifty-s?t=${Date.now()}`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       

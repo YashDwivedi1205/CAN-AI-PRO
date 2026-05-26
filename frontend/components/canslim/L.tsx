@@ -622,7 +622,7 @@ export default function L({ onAuditAction, stocksList = [] }: LProps) {
     setStockDetail(null);
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       // Trim any trailing slashes to avoid // in URL
       const cleanBase = baseUrl.replace(/\/$/, '');
       const finalUrl = `${cleanBase}/api/stock-detail/${ticker}`;

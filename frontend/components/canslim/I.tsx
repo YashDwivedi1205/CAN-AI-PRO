@@ -24,7 +24,7 @@ export default function I({ onAuditAction, stocksList = [] }: IProps) {
     const symbol = ticker.toUpperCase();
     
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       if (!baseUrl) {
         alert("Bhai, .env mein NEXT_PUBLIC_BACKEND_URL missing hai!");
         setLoading(false);
