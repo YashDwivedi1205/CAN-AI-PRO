@@ -29,7 +29,7 @@ interface ApiResponse {
 // --- DATA FETCHING ---
 // async function getTrendingStocks(): Promise<RankedTrendingStock[]> {
 //   // Fix: Matching port with app.py (5001)
-//   // const API_URL = 'http://localhost:5001/api/trending-stocks';
+//   // const API_URL = '${process.env.NEXT_PUBLIC_API_URL}/api/trending-stocks';
 //   const API_URL = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/trending-stocks`);
 //   try {
 //     const response = await fetch(API_URL, {

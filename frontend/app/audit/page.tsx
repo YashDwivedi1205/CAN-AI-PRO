@@ -40,7 +40,7 @@
 //     setLoading(true);
 //     setError(null);
 //     try {
-//       // const response = await fetch(`http://localhost:5001/api/audit?ticker=${tickerValue.toUpperCase()}`);
+//       // const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit?ticker=${tickerValue.toUpperCase()}`);
 //       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit?ticker=${tickerValue.toUpperCase()}`);
 //       if (!response.ok) throw new Error("Backend server error");
 //       const data = await response.json();
@@ -58,7 +58,7 @@
 //     setError(null);
 
 //     try {
-//       // const response = await fetch(`http://localhost:5001/api/audit?ticker=${ticker.toUpperCase()}`);
+//       // const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit?ticker=${ticker.toUpperCase()}`);
 //       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit?ticker=${ticker.toUpperCase()}`);
       
 //       if (!response.ok) {

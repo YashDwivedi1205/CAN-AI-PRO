@@ -97,7 +97,7 @@ export default function MarketDirection({ onAuditAction }: MarketDirectionProps)
   useEffect(() => {
     const fetchMarketPulse = async () => {
       try {
-        // const res = await fetch(`http://localhost:5001/api/market-direction`);
+        // const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/market-direction`);
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/market-direction`);
         const data = await res.json();
         setMarketData(data);
@@ -120,7 +120,7 @@ export default function MarketDirection({ onAuditAction }: MarketDirectionProps)
     
     try {
       // Backend se AI Deep Audit fetch karna
-      const res = await fetch(`http://localhost:5001/api/deep-audit/${ticker}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/deep-audit/${ticker}`);
       const data = await res.json();
 
       if (data.status === "success") {

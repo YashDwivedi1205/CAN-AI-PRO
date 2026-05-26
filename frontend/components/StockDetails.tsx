@@ -160,9 +160,9 @@ const StockDetails: React.FC<StockDetailsProps> = ({ stock, onBack }) => {
       
       // Update this URL with your new Ngrok URL from Colab
       // const NGROK_URL = "https://unpresumed-arline-dealate.ngrok-free.dev"; 
-      // const API_URL = `http://localhost:5001/api/full-analysis/${stock.ticker}`;
+      // const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/full-analysis/${stock.ticker}`;
 
-      const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+      const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL}';
       const API_URL = `${BASE_URL}/api/full-analysis/${stock.ticker}`;
       
       try {

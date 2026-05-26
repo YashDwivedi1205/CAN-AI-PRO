@@ -25,9 +25,9 @@ export default function CanslimPage() {
 
   // const BACKEND_URL = process.env.NODE_ENV === 'production' 
   //   ? 'https://aifsa.onrender.com' 
-  //   : 'http://localhost:5001';
+  //   : '${process.env.NEXT_PUBLIC_API_URL}';
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL|| 'http://localhost:5001';
+  const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL|| '${process.env.NEXT_PUBLIC_API_URL}';
 
   const loadInitialData = useCallback(async () => {
     try {
