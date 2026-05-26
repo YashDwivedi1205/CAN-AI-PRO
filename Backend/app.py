@@ -40,19 +40,9 @@ client_groq = openai.OpenAI(
 # MongoDB Connection
 # MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://CAN_AI_User:pCFwmOM8kGFngiex@cluster0.jnaiqtg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 
-MONGO_URI = os.getenv("MONGO_URI") 
-
-if not MONGO_URI:
-    print("❌ ERROR: MONGO_URI environment variable is missing!")
-    db = None
-else:
-    try:
-        client = MongoClient(MONGO_URI)
-        db = client['stock_analysis_db'] # Yahi database naam rakhna
-        print("✅ MongoDB Atlas Connected Successfully!")
-    except Exception as e:
-        print(f"❌ MongoDB Connection Failed: {e}")
-        db = None
+MONGO_URI = "mongodb+srv://AIFSA_User:CANSLIMAI123@cluster0.qeqczeh.mongodb.net/stock_analysis_db?retryWrites=true&w=majority&appName=Cluster0"
+client = MongoClient(MONGO_URI)
+db = client['stock_analysis_db']
 
 try:
     client = MongoClient(MONGO_URI)
