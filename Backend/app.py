@@ -220,7 +220,12 @@ def get_groq_quant_audit_route(): # Route name same rakha hai taaki frontend bre
 # ================================
 # 5. SERVER START
 # ================================
-if __name__ == '__main__':
-    print(f"🚀 Gateway Server Running on http://localhost:5001")
-    print(f"🔗 Forwarding missing requests to: {COLAB_URL}")
-    app.run(host='0.0.0.0', port=5001, debug=False)
+# if __name__ == '__main__':
+#     print(f"🚀 Gateway Server Running on http://localhost:5001")
+#     print(f"🔗 Forwarding missing requests to: {COLAB_URL}")
+#     app.run(host='0.0.0.0', port=5001, debug=False)
+
+if __name__ == "__main__":
+    # Render PORT environment variable deta hai, use use karo
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
