@@ -23,9 +23,11 @@ export default function CanslimPage() {
   const [stocksList, setStocksList] = useState<any[]>([]);
   const [loadingList, setLoadingList] = useState(true);
 
-  const BACKEND_URL = process.env.NODE_ENV === 'production' 
-    ? 'https://aifsa.onrender.com' 
-    : 'http://localhost:5001';
+  // const BACKEND_URL = process.env.NODE_ENV === 'production' 
+  //   ? 'https://aifsa.onrender.com' 
+  //   : 'http://localhost:5001';
+
+  const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL|| 'http://localhost:5001';
 
   const loadInitialData = useCallback(async () => {
     try {

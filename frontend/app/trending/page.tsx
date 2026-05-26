@@ -27,29 +27,66 @@ interface ApiResponse {
 }
 
 // --- DATA FETCHING ---
+// async function getTrendingStocks(): Promise<RankedTrendingStock[]> {
+//   // Fix: Matching port with app.py (5001)
+//   // const API_URL = 'http://localhost:5001/api/trending-stocks';
+//   const API_URL = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/trending-stocks`);
+//   try {
+//     const response = await fetch(API_URL, {
+//       cache: 'no-store',
+//       headers: { Accept: 'application/json' },
+//     });
+//     if (!response.ok) {
+//       throw new Error(
+//         `Problem fetching data from API: ${response.statusText} (${response.status})`
+//       );
+//     }
+//     const result: ApiResponse = await response.json();
+//     if (!result.success) {
+//       throw new Error(`API returned failure status: ${result.message}`);
+//     }
+//     const rankedData: RankedTrendingStock[] = (result.results || []).map(
+//       (stock, index) => ({
+//         ...stock,
+//         rank: index + 1,
+//       })
+//     );
+//     return rankedData;
+//   } catch (error) {
+//     console.error('Data Fetching Error:', error);
+//     return [];
+//   }
+// }
+
 async function getTrendingStocks(): Promise<RankedTrendingStock[]> {
-  // Fix: Matching port with app.py (5001)
-  const API_URL = 'http://localhost:5001/api/trending-stocks';
+  // Sahi tareeka: API_URL ko seedha string variable banao
+  const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/trending-stocks`;
+
   try {
     const response = await fetch(API_URL, {
       cache: 'no-store',
       headers: { Accept: 'application/json' },
     });
+
     if (!response.ok) {
       throw new Error(
         `Problem fetching data from API: ${response.statusText} (${response.status})`
       );
     }
+
     const result: ApiResponse = await response.json();
+
     if (!result.success) {
       throw new Error(`API returned failure status: ${result.message}`);
     }
+
     const rankedData: RankedTrendingStock[] = (result.results || []).map(
       (stock, index) => ({
         ...stock,
         rank: index + 1,
       })
     );
+
     return rankedData;
   } catch (error) {
     console.error('Data Fetching Error:', error);
