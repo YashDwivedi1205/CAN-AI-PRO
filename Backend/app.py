@@ -17,19 +17,13 @@ import google.generativeai as genai
 from pymongo import MongoClient
 from groq import Groq
 
-# Conditional Import for ngrok
-if os.environ.get("RENDER") is None:
-    from pyngrok import ngrok
-
 load_dotenv()
 
 # ================================
 # 1. CONFIGURATION & URLS
 # ================================
-# Local ke liye ngrok URL, Render ke liye null
+# Render par COLAB_URL ki zaroorat nahi hai
 COLAB_URL = None
-if os.environ.get("RENDER") is None:
-    COLAB_URL = "https://unpresumed-arline-dealate.ngrok-free.dev"
 
 GEMINI_API_KEY = os.getenv("Gemini_API_KEY")
 if GEMINI_API_KEY:
@@ -55,17 +49,6 @@ except Exception as e:
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-
-# ================================
-# NGrok Setup for Local Development
-# ================================
-if os.environ.get("RENDER") is None:
-    try:
-        port = 5000
-        public_url = ngrok.connect(port).public_url
-        print(f"🚀 ngrok tunnel established: {public_url}")
-    except Exception as e:
-        print(f"⚠️ ngrok could not be started: {e}")
 
 # ================================
 # 2. PROXY MECHANISM (GATEWAY)
