@@ -68,8 +68,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 @app.after_request
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
-    # Yahan 'ngrok-skip-browser-warning' add kar diya hai
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,ngrok-skip-browser-warning'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
     return response
 
@@ -249,11 +248,11 @@ def get_groq_quant_audit_route(): # Route name same rakha hai taaki frontend bre
 # 5. SERVER START
 # ================================
 # if __name__ == '__main__':
-#     print(f"🚀 Gateway Server Running on http://localhost:5001")
+#     print(f"🚀 Gateway Server Running on ${process.env.NEXT_PUBLIC_API_URL}")
 #     print(f"🔗 Forwarding missing requests to: {COLAB_URL}")
 #     app.run(host='0.0.0.0', port=5001, debug=False)
 
 if __name__ == "__main__":
     # Render PORT environment variable deta hai, use use karo
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5001))
     app.run(host="0.0.0.0", port=port)
