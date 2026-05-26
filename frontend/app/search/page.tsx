@@ -12,14 +12,14 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 // --- API FETCH FUNCTION ---
 async function getFullAnalysis(ticker: string) {
-  const NGROK_URL = "https://unpresumed-arline-dealate.ngrok-free.dev"; 
+  const NGROK_URL = process.env.NEXT_PUBLIC_API_URL;
   
   try {
     const response = await fetch(`${NGROK_URL}/api/full-analysis/${ticker}`, {
       method: 'GET',
       headers: { 
         'Accept': 'application/json',
-        'ngrok-skip-browser-warning': 'true' 
+        'ngrok-skip-browser-warning': 'true'
       },
     });
 
