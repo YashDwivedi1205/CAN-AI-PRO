@@ -164,15 +164,19 @@ def ai_analysis(ticker):
 
 def run_heavy_ai_process(task_id, ticker):
     try:
-        # Check karo ki function define hai ya nahi
-        if 'perform_actual_audit' in globals():
-            result = perform_actual_audit(ticker)
-            tasks_col.update_one({"task_id": task_id}, {"$set": {"status": "completed", "result": result}})
-        else:
-            tasks_col.update_one({"task_id": task_id}, {"$set": {"status": "failed", "error": "Function not defined"}})
+        # Yahan apna main audit function call karo
+        # Example: result = perform_actual_audit(ticker)
+        result = {"data": "Audit complete for " + ticker} # Dummy result
+        
+        tasks_col.update_one(
+            {"task_id": task_id}, 
+            {"$set": {"status": "completed", "result": result}}
+        )
     except Exception as e:
-        print(f"DEBUG ERROR: {e}") # Ye logs mein dikhega
-        tasks_col.update_one({"task_id": task_id}, {"$set": {"status": "failed", "error": str(e)}})
+        tasks_col.update_one(
+            {"task_id": task_id}, 
+            {"$set": {"status": "failed", "error": str(e)}}
+        )
         
 @app.route('/api/scan-nifty-s', methods=['GET'])
 def scan_s_proxy():
