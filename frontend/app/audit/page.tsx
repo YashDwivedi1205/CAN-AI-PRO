@@ -435,42 +435,22 @@ function AuditContent() {
   const runAudit = async (tickerValue: string) => {
     if (!tickerValue.trim()) return;
     setLoading(true);
-    setError(null);
+    
+    // Step 1: Task shuru karo
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/full-audit/${tickerValue.toUpperCase()}`);
+    const { task_id } = await res.json();
 
-    try {
-      // 1. Audit shuru karne ke liye initial request
-      const startRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/start-audit/${tickerValue.toUpperCase()}`);
-      if (!startRes.ok) throw new Error("Failed to initiate audit");
-      
-      const { task_id } = await startRes.json();
+    // Step 2: Polling loop
+    const interval = setInterval(async () => {
+      const statusRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit-status/${task_id}`);
+      const data = await statusRes.json();
 
-      // 2. Polling mechanism: Status check karte raho jab tak complete na ho
-      const pollInterval = setInterval(async () => {
-        try {
-          const statusRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit-status/${task_id}`);
-          const data = await statusRes.json();
-
-          if (data.status === 'completed') {
-            clearInterval(pollInterval);
-            setAuditData(data.result);
-            setLoading(false);
-          } else if (data.status === 'failed') {
-            clearInterval(pollInterval);
-            setError("AI Audit failed to process");
-            setLoading(false);
-          }
-          // Agar 'processing' hai, toh kuch mat karo, interval agle 3 seconds baad phir chalega
-        } catch (err) {
-          clearInterval(pollInterval);
-          setError("Error while checking status");
-          setLoading(false);
-        }
-      }, 3000); // Har 3 second mein check karega
-
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
-      setLoading(false);
-    }
+      if (data.status === 'completed') {
+        clearInterval(interval);
+        setAuditData(data.result);
+        setLoading(false);
+      }
+    }, 2000); // Har 2 second mein check karega
   };
 
   const handleRunAudit = async () => {
