@@ -598,7 +598,7 @@ export default function L({ onAuditAction, stocksList = [] }: LProps) {
         setLoading(true);
         setError(false);
         const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://can-ai-pro.onrender.com";
-        const res = await fetch(`${API_URL}/api/sector-leaders`, {
+        const res = await fetch(`https://can-ai-pro.onrender.com/api/sector-leaders`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
