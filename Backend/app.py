@@ -49,22 +49,17 @@ MONGO_URI = os.getenv("MONGO_URI")
 if not MONGO_URI:
     print("❌ ERROR: MONGO_URI environment variable is missing!")
     db = None
+    tasks_col = None
 else:
     try:
         client = MongoClient(MONGO_URI)
-        db = client['stock_analysis_db'] # Yahi database naam rakhna
+        db = client['stock_analysis_db']
+        tasks_col = db['tasks'] # Yeh line zaroori hai
         print("✅ MongoDB Atlas Connected Successfully!")
     except Exception as e:
         print(f"❌ MongoDB Connection Failed: {e}")
         db = None
-
-try:
-    client = MongoClient(MONGO_URI)
-    db = client['stock_analysis_db']
-    print("✅ MongoDB Atlas Connected Successfully!")
-except Exception as e:
-    print(f"❌ MongoDB Connection Failed: {e}")
-    db = None
+        tasks_col = None
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True) # Sirf itna kaafi hai, baaki sab hata do
@@ -160,6 +155,12 @@ def ai_analysis(ticker):
 # ================================
 
 # 🔥 CRITICAL FIX: Frontend page.tsx calls '/api/full-audit/<ticker>' so this route must exist!
+
+@app.route('/api/full-analysis/<ticker>', methods=['GET'])
+def full_analysis_proxy(ticker):
+    # Colab par forward karo
+    data, code = forward_to_colab(f'api/full-analysis/{ticker}')
+    return jsonify(data), code
 
 def run_heavy_ai_process(task_id, ticker):
     try:
