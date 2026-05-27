@@ -67,7 +67,7 @@ except Exception as e:
     db = None
 
 app = Flask(__name__)
-CORS(app) # Sirf itna kaafi hai, baaki sab hata do
+CORS(app, resources={r"/api/*": {"origins": "https://can-ai-pro.vercel.app"}}) # Sirf itna kaafi hai, baaki sab hata do
 
 @app.after_request
 def add_cors_headers(response):
