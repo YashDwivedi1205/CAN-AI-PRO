@@ -67,7 +67,7 @@ except Exception as e:
     db = None
 
 app = Flask(__name__)
-CORS(app) # Sirf itna kaafi hai, baaki sab hata do
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True) # Sirf itna kaafi hai, baaki sab hata do
 
 @app.after_request
 def add_cors_headers(response):
@@ -77,9 +77,9 @@ def add_cors_headers(response):
     return response
 
 @app.before_request
-def check_if_server_up():
-    # Ye confirm karega ki request process ho rahi hai
-    pass
+def handle_options_request():
+    if request.method == 'OPTIONS':
+        return '', 200
 
 # ================================
 # 2. PROXY MECHANISM (GATEWAY)
