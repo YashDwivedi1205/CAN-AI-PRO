@@ -9,7 +9,7 @@ interface ChatMessage {
     sources?: { uri: string; title: string }[];
 }
 const callGeminiAPI = async (currentQuery: string): Promise<ChatMessage> => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/chat`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: currentQuery })
