@@ -213,8 +213,25 @@ def market_direction_proxy():
 
 @app.route('/api/chat', methods=['POST'])
 def chat_proxy():
-    data, code = forward_to_colab('api/chat', method='POST', data=request.json)
-    return jsonify(data), code
+    # 1. Pehle check karo kya Colab URL set hai
+    if COLAB_URL:
+        # Colab try karo
+        data, code = forward_to_colab('api/chat', method='POST', data=request.json)
+        # Agar Colab se error aaye (500/502), toh niche wala fallback chale
+        if code == 200:
+            return jsonify(data), code
+
+    # 2. FALLBACK: Agar Colab fail ho gaya, toh Local server hi Groq call karega
+    try:
+        user_msg = request.json.get("message", "")
+        completion = client_groq.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": user_msg}],
+            timeout=30 
+        )
+        return jsonify({"reply": completion.choices[0].message.content})
+    except Exception as e:
+        return jsonify({"reply": f"Dono engines busy hain: {str(e)}"}), 500
 
 @app.route('/api/deep-audit/<ticker>')
 def deep_audit_proxy(ticker):
