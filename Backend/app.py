@@ -238,11 +238,6 @@ def deep_audit_proxy(ticker):
     data, code = forward_to_colab(f'api/deep-audit/{ticker}')
     return jsonify(data), code
 
-@app.route('/api/full-analysis/<ticker>')
-def full_analysis_proxy(ticker):
-    data, code = forward_to_colab(f'api/full-analysis/{ticker}')
-    return jsonify(data), code
-
 @app.route('/api/scan-nifty-a')
 def scan_a_proxy():
     data, code = forward_to_colab('api/scan-nifty-a')
