@@ -5,6 +5,7 @@ import json
 import time
 import random
 import re
+import threading
 import openai
 import yfinance as yf
 from flask import Flask, jsonify, request
@@ -18,6 +19,9 @@ from pymongo import MongoClient
 from groq import Groq
 
 load_dotenv()
+
+tasks = {} # Global dictionary
+import uuid
 
 # ================================
 # 1. CONFIGURATION & URLS
@@ -156,11 +160,16 @@ def ai_analysis(ticker):
 # ================================
 
 # 🔥 CRITICAL FIX: Frontend page.tsx calls '/api/full-audit/<ticker>' so this route must exist!
-@app.route('/api/full-audit/<ticker>', methods=['GET'])
-def full_audit_route(ticker):
-    data, code = forward_to_colab(f'api/full-audit/{ticker}')
-    return jsonify(data), code
 
+def run_heavy_ai_process(task_id, ticker):
+    try:
+        # Yahan apna wahi purana complex AI logic call karo
+        # Jab result aa jaye toh:
+        result = perform_actual_audit(ticker) # Tumhara existing AI function
+        tasks[task_id] = {"status": "completed", "result": result}
+    except Exception as e:
+        tasks[task_id] = {"status": "failed", "error": str(e)}
+        
 @app.route('/api/scan-nifty-s', methods=['GET'])
 def scan_s_proxy():
     data, code = forward_to_colab('api/scan-volume') 
@@ -261,6 +270,18 @@ def sector_leaders_default_proxy():
     # Default 'IT' bhej do agar kuch nahi aaya
     data, code = forward_to_colab(f'api/sector-leaders/IT')
     return jsonify(data), code
+
+@app.route('/api/full-audit/<ticker>', methods=['GET'])
+def start_audit(ticker):
+    task_id = str(uuid.uuid4())
+    # Threading use karo taaki request turant return ho jaye
+    threading.Thread(target=run_heavy_ai_process, args=(task_id, ticker)).start()
+    return jsonify({"task_id": task_id})
+
+@app.route('/api/audit-status/<task_id>', methods=['GET'])
+def get_audit_status(task_id):
+    # Yahan check karo ki result ready hai ya nahi
+    return jsonify(tasks.get(task_id, {"status": "processing"}))
 
 # ================================
 # 5. SERVER START
