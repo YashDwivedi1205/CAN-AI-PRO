@@ -436,15 +436,39 @@ function AuditContent() {
     if (!tickerValue.trim()) return;
     setLoading(true);
     setError(null);
+
     try {
-      // Yahan route match hona chahiye
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/full-audit/${tickerValue.toUpperCase()}`);
-      if (!response.ok) throw new Error("Backend connection failed");
-      const data = await response.json();
-      setAuditData(data);
+      // 1. Audit shuru karne ke liye initial request
+      const startRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/start-audit/${tickerValue.toUpperCase()}`);
+      if (!startRes.ok) throw new Error("Failed to initiate audit");
+      
+      const { task_id } = await startRes.json();
+
+      // 2. Polling mechanism: Status check karte raho jab tak complete na ho
+      const pollInterval = setInterval(async () => {
+        try {
+          const statusRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit-status/${task_id}`);
+          const data = await statusRes.json();
+
+          if (data.status === 'completed') {
+            clearInterval(pollInterval);
+            setAuditData(data.result);
+            setLoading(false);
+          } else if (data.status === 'failed') {
+            clearInterval(pollInterval);
+            setError("AI Audit failed to process");
+            setLoading(false);
+          }
+          // Agar 'processing' hai, toh kuch mat karo, interval agle 3 seconds baad phir chalega
+        } catch (err) {
+          clearInterval(pollInterval);
+          setError("Error while checking status");
+          setLoading(false);
+        }
+      }, 3000); // Har 3 second mein check karega
+
     } catch (err: any) {
-      setError(err.message);
-    } finally {
+      setError(err.message || "Something went wrong.");
       setLoading(false);
     }
   };
