@@ -17,7 +17,6 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 from pymongo import MongoClient
 from groq import Groq
-from audit_logic import perform_actual_audit
 
 load_dotenv()
 
