@@ -437,8 +437,9 @@ function AuditContent() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit?ticker=${tickerValue.toUpperCase()}`);
-      if (!response.ok) throw new Error("Backend server error");
+      // Yahan route match hona chahiye
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/full-audit/${tickerValue.toUpperCase()}`);
+      if (!response.ok) throw new Error("Backend connection failed");
       const data = await response.json();
       setAuditData(data);
     } catch (err: any) {
@@ -453,7 +454,7 @@ function AuditContent() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit?ticker=${ticker.toUpperCase()}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/full-audit/${ticker.toUpperCase()}`);
       if (!response.ok) throw new Error("Backend server responded with an error");
       const data = await response.json();
       setAuditData(data);
