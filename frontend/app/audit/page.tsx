@@ -435,22 +435,34 @@ function AuditContent() {
   const runAudit = async (tickerValue: string) => {
     if (!tickerValue.trim()) return;
     setLoading(true);
+    setError(null);
     
-    // Step 1: Task shuru karo
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/full-audit/${tickerValue.toUpperCase()}`);
-    const { task_id } = await res.json();
+    try {
+      // 1. Task start request
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/full-audit/${tickerValue.toUpperCase()}`);
+      if (!res.ok) throw new Error("Backend failed to start audit.");
+      
+      const { task_id } = await res.json();
 
-    // Step 2: Polling loop
-    const interval = setInterval(async () => {
-      const statusRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit-status/${task_id}`);
-      const data = await statusRes.json();
+      // 2. Polling start karo
+      const interval = setInterval(async () => {
+        const statusRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit-status/${task_id}`);
+        const data = await statusRes.json();
 
-      if (data.status === 'completed') {
-        clearInterval(interval);
-        setAuditData(data.result);
-        setLoading(false);
-      }
-    }, 2000); // Har 2 second mein check karega
+        if (data.status === 'completed') {
+          clearInterval(interval);
+          setAuditData(data.result);
+          setLoading(false);
+        } else if (data.status === 'failed') {
+          clearInterval(interval);
+          setError("AI Audit failed.");
+          setLoading(false);
+        }
+      }, 3000); // Har 3 second
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
+    }
   };
 
   const handleRunAudit = async () => {
