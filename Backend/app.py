@@ -72,6 +72,11 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Methods'] = '*'
     return response
 
+@app.before_request
+def check_if_server_up():
+    # Ye confirm karega ki request process ho rahi hai
+    pass
+
 # ================================
 # 2. PROXY MECHANISM (GATEWAY)
 # ================================
