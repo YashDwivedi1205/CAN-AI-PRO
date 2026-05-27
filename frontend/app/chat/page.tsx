@@ -9,10 +9,9 @@ interface ChatMessage {
     sources?: { uri: string; title: string }[];
 }
 const callGeminiAPI = async (currentQuery: string): Promise<ChatMessage> => {
-    const API_URL = 'https://unpresumed-arline-dealate.ngrok-free.dev';
-    console.log("Calling API at:", `${API_URL}/api/chat`);
+    const baseUrl = 'https://unpresumed-arline-dealate.ngrok-free.dev';
 
-    const response = await fetch(`${API_URL}/api/chat`, {
+    const response = await fetch(`${baseUrl}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: currentQuery })
