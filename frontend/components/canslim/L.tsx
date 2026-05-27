@@ -597,8 +597,17 @@ export default function L({ onAuditAction, stocksList = [] }: LProps) {
       try {
         setLoading(true);
         setError(false);
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sector-leaders`);
-        if (!res.ok) throw new Error('Network error');
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://can-ai-pro.onrender.com";
+        const res = await fetch(`${API_URL}/api/sector-leaders`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
         const data = await res.json();
         if (data.success) {
             setAllCategories(data.categories);
