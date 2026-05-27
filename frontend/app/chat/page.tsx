@@ -9,11 +9,18 @@ interface ChatMessage {
     sources?: { uri: string; title: string }[];
 }
 const callGeminiAPI = async (currentQuery: string): Promise<ChatMessage> => {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://your-ngrok-url.ngrok-free.app';
+    console.log("Calling API at:", `${API_URL}/api/chat`);
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: currentQuery })
     });
+
+    if (!response.ok) {
+        throw new Error(`Server status: ${response.status}`);
+    }
 
     const data = await response.json();
 
