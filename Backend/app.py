@@ -163,12 +163,19 @@ def ai_analysis(ticker):
 
 def run_heavy_ai_process(task_id, ticker):
     try:
-        # Yahan apna wahi purana complex AI logic call karo
-        # Jab result aa jaye toh:
-        result = perform_actual_audit(ticker) # Tumhara existing AI function
-        tasks[task_id] = {"status": "completed", "result": result}
+        # Yahan apna main audit function call karo
+        # Example: result = perform_actual_audit(ticker)
+        result = {"data": "Audit complete for " + ticker} # Dummy result
+        
+        tasks_col.update_one(
+            {"task_id": task_id}, 
+            {"$set": {"status": "completed", "result": result}}
+        )
     except Exception as e:
-        tasks[task_id] = {"status": "failed", "error": str(e)}
+        tasks_col.update_one(
+            {"task_id": task_id}, 
+            {"$set": {"status": "failed", "error": str(e)}}
+        )
         
 @app.route('/api/scan-nifty-s', methods=['GET'])
 def scan_s_proxy():
@@ -287,13 +294,16 @@ def sector_leaders_default_proxy():
 def start_audit(ticker):
     task_id = str(uuid.uuid4())
     # Threading use karo taaki request turant return ho jaye
+    tasks_col.insert_one({"task_id": task_id, "status": "processing"})
     threading.Thread(target=run_heavy_ai_process, args=(task_id, ticker)).start()
     return jsonify({"task_id": task_id})
 
 @app.route('/api/audit-status/<task_id>', methods=['GET'])
 def get_audit_status(task_id):
-    # Yahan check karo ki result ready hai ya nahi
-    return jsonify(tasks.get(task_id, {"status": "processing"}))
+    task = tasks_col.find_one({"task_id": task_id})
+    if not task:
+        return jsonify({"status": "not_found"}), 404
+    return jsonify({"status": task["status"], "result": task.get("result")})
 
 # ================================
 # 5. SERVER START
