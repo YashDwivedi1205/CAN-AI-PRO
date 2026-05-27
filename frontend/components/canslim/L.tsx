@@ -597,23 +597,26 @@ export default function L({ onAuditAction, stocksList = [] }: LProps) {
       try {
         setLoading(true);
         setError(false);
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://can-ai-pro.onrender.com";
-        const res = await fetch(`https://can-ai-pro.onrender.com/api/sector-leaders`, {
+        // const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://can-ai-pro.onrender.com";
+        // const res = await fetch(`https://can-ai-pro.onrender.com/api/sector-leaders`, {
+        const res = await fetch("https://can-ai-pro.onrender.com/api/sector-leaders", {
           method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
+          // headers: {
+          //   'Accept': 'application/json',
+          //   'Content-Type': 'application/json'
+          // }
+          headers: { 'Content-Type': 'application/json' }
         });
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         const data = await res.json();
-        if (data.success) {
-            setAllCategories(data.categories);
-        } else {
-            setAllCategories(defaultCategories);
-        }
+        // if (data.success) {
+        //     setAllCategories(data.categories);
+        // } else {
+        //     setAllCategories(defaultCategories);
+        // }
+        setAllCategories(data.success ? data.categories : defaultCategories);
       } catch (err) {
         setAllCategories(defaultCategories);
         setError(true);
@@ -631,44 +634,47 @@ export default function L({ onAuditAction, stocksList = [] }: LProps) {
     setStockDetail(null);
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      // Trim any trailing slashes to avoid // in URL
-      const cleanBase = baseUrl.replace(/\/$/, '');
-      const finalUrl = `${cleanBase}/api/stock-detail/${ticker}`;
+      // const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      // const cleanBase = baseUrl.replace(/\/$/, '');
+      // const finalUrl = `${cleanBase}/api/stock-detail/${ticker}`;
+
+      const finalUrl = `https://can-ai-pro.onrender.com/api/stock-detail/${ticker}`;
       
       console.log("Fetching from:", finalUrl);
 
       const res = await fetch(finalUrl, {
         method: 'GET',
-        mode: 'cors', // Explicitly ask for CORS
+        // mode: 'cors',
         headers: { 
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          // 'Accept': 'application/json',
           'ngrok-skip-browser-warning': '69420', // Ngrok specific bypass
-          'bypass-tunnel-reminder': 'true'       // Localtunnel specific bypass
+          // 'bypass-tunnel-reminder': 'true'       // Localtunnel specific bypass
         }
       });
 
       if (!res.ok) throw new Error(`Server responded with ${res.status}`);
 
       const data = await res.json();
-      if (data.success && data.details) {
-        setStockDetail(data.details);
-      } else {
-        console.warn("Backend returned success:false", data);
-      }
+      setStockDetail(data.details || {});
+      // if (data.success && data.details) {
+      //   setStockDetail(data.details);
+      // } else {
+      //   console.warn("Backend returned success:false", data);
+      // }
     } catch (err: any) {
       console.error("🔴 Connection Failed:", err.message);
       // User ko real error dikhao taaki hardcoded data na lage
       setStockDetail({
         ticker: ticker,
-        rsRating: "ERR",
+        rsRating: "N/A",
         rank: "OFFLINE",
-        highlights: [
-          "Connection to Colab failed.",
-          `Error: ${err.message}`,
-          "Please check if Ngrok URL is updated in .env"
-        ]
+        // highlights: [
+        //   "Connection to Colab failed.",
+        //   `Error: ${err.message}`,
+        //   "Please check if Ngrok URL is updated in .env"
+        // ]
+        highlights: ["Backend unreachable.", "Check Render logs."]
       });
     } finally {
       setLoadingDetail(false);
