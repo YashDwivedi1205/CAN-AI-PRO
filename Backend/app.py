@@ -244,6 +244,19 @@ def get_groq_quant_audit_route(): # Route name same rakha hai taaki frontend bre
         print(f"❌ Error routing to Colab Engine: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/stock-detail/<ticker>', methods=['GET'])
+def stock_detail_proxy(ticker):
+    # Colab par forward karo
+    data, code = forward_to_colab(f'api/stock-detail/{ticker}')
+    return jsonify(data), code
+
+# Aur agar /api/sector-leaders bina sector ke call ho raha hai, toh ye bhi add karo:
+@app.route('/api/sector-leaders', methods=['GET'])
+def sector_leaders_default_proxy():
+    # Default 'IT' bhej do agar kuch nahi aaya
+    data, code = forward_to_colab(f'api/sector-leaders/IT')
+    return jsonify(data), code
+
 # ================================
 # 5. SERVER START
 # ================================
