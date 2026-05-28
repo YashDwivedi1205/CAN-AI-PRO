@@ -397,6 +397,172 @@
 
 
 
+// "use client";
+
+// import React, { useState, useEffect, Suspense } from "react";
+// import { useSearchParams } from "next/navigation";
+// import { CheckCircle2, XCircle, Zap, ShieldAlert, Loader2, ArrowUpRight, ArrowDownRight, Info } from "lucide-react";
+
+// interface AuditData {
+//   ticker: string;
+//   live_price?: number;
+//   change_percent?: number;
+//   verdict: string;
+//   score: number;
+//   confidence_match: number;
+//   canslim_layers: { [key: string]: boolean | string | number; };
+//   layer_explanations?: { [key: string]: string; };
+//   reasoning: string;
+// }
+
+// // Ye component pura tumhara original logic handle karega
+// function AuditContent() {
+//   const searchParams = useSearchParams();
+//   const [ticker, setTicker] = useState("");
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState<string | null>(null);
+//   const [auditData, setAuditData] = useState<AuditData | null>(null);
+//   const [isExpanded, setIsExpanded] = useState(false);
+
+//   useEffect(() => {
+//     const tickerFromUrl = searchParams.get("ticker");
+//     if (tickerFromUrl) {
+//       setTicker(tickerFromUrl);
+//       runAudit(tickerFromUrl);
+//     }
+//   }, [searchParams]);
+
+//   const runAudit = async (tickerValue: string) => {
+//     if (!tickerValue.trim()) return;
+//     setLoading(true);
+//     setError(null);
+    
+//     try {
+//       // 1. Task start request
+//       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/full-audit/${tickerValue.toUpperCase()}`);
+//       if (!res.ok) throw new Error("Backend failed to start audit.");
+      
+//       const { task_id } = await res.json();
+
+//       // 2. Polling start karo
+//       const interval = setInterval(async () => {
+//         const statusRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit-status/${task_id}`);
+//         const data = await statusRes.json();
+
+//         if (data.status === 'completed') {
+//           clearInterval(interval);
+//           setAuditData(data.result);
+//           setLoading(false);
+//         } else if (data.status === 'failed') {
+//           clearInterval(interval);
+//           setError("AI Audit failed.");
+//           setLoading(false);
+//         }
+//       }, 3000); // Har 3 second
+//     } catch (err: any) {
+//       setError(err.message);
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleRunAudit = async () => {
+//     if (!ticker.trim()) return;
+//     setLoading(true);
+//     setError(null);
+//     try {
+//       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/full-audit/${ticker.toUpperCase()}`);
+//       if (!response.ok) throw new Error("Backend server responded with an error");
+//       const data = await response.json();
+//       setAuditData(data);
+//     } catch (err: any) {
+//       setError(err.message || "Something went wrong while connecting to the AI core.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const isLayerPassed = (layerKey: string): boolean => {
+//     if (!auditData || !auditData.canslim_layers) return false;
+//     const value = auditData.canslim_layers[layerKey];
+//     if (typeof value === "boolean") return value;
+//     if (typeof value === "number") return value === 1;
+//     if (typeof value === "string") {
+//       const normalized = value.toLowerCase().trim();
+//       return normalized === "true" || normalized === "pass" || normalized === "bullish" || normalized === "yes" || normalized === "1";
+//     }
+//     return false;
+//   };
+
+//   const layers = [
+//     { key: "C", name: "Current Earnings", desc: "Checks if recent quarterly profits jumped significantly (>20%)" },
+//     { key: "A", name: "Annual Earnings", desc: "Verifies solid compound annual growth over the last 3-5 years" },
+//     { key: "N", name: "New Catalysts", desc: "Looks for new management, products, or critical price breakouts" },
+//     { key: "S", name: "Supply & Demand", desc: "Tracks volume spikes to see if big institutions are buying up shares" },
+//     { key: "L", name: "Leader / Laggard", desc: "Filters out weak assets; confirms if this is an industry-leading stock" },
+//     { key: "I", name: "Institutional View", desc: "Checks if top mutual funds and banks are building fresh positions" },
+//     { key: "M", name: "Market Direction", desc: "Confirms if overall market environment is safe and in an uptrend" },
+//   ];
+
+//   const displayedScore = auditData ? auditData.score : 0;
+//   const isPositive = auditData && (auditData.change_percent ?? 0) >= 0;
+
+//   return (
+//     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-4 md:p-12 selection:bg-indigo-500 selection:text-white">
+//       <div className="max-w-5xl mx-auto space-y-10">
+//         <div className="text-center space-y-2">
+//           <div className="mx-auto w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+//             <Zap className="w-6 h-6 text-white fill-white" />
+//           </div>
+//           <h1 className="text-4xl font-black tracking-tight text-slate-900">
+//             QUANT <span className="text-indigo-600 tracking-tighter">7-LEVEL AUDIT</span>
+//           </h1>
+//         </div>
+
+//         <div className="bg-white p-2.5 rounded-2xl shadow-xl border border-slate-100 max-w-xl mx-auto flex items-center justify-between pl-5 gap-3">
+//           <input
+//             type="text"
+//             value={ticker}
+//             onChange={(e) => setTicker(e.target.value)}
+//             placeholder="ENTER TICKER SYMBOL (e.g., TCS, RELIANCE)"
+//             className="w-full font-extrabold uppercase tracking-wider text-slate-800 placeholder-slate-300 focus:outline-none text-base bg-transparent"
+//             onKeyDown={(e) => e.key === "Enter" && handleRunAudit()}
+//           />
+//           <button onClick={handleRunAudit} disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold px-6 py-3 rounded-xl flex items-center gap-2 shadow-md transition-all active:scale-95 text-xs uppercase tracking-wider whitespace-nowrap">
+//             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> AUDITING...</> : <><Zap className="w-4 h-4 fill-white text-indigo-600" /> Run Audit</>}
+//           </button>
+//         </div>
+
+//         {error && <div className="bg-rose-50 border border-rose-200 rounded-2xl p-5 text-center max-w-xl mx-auto shadow-sm"><ShieldAlert className="w-8 h-8 text-rose-500 mx-auto mb-2" /><p className="text-rose-600 text-[11px] font-medium uppercase">{error}</p></div>}
+
+//         {auditData && !loading && (
+//           <div className="space-y-6 animate-fade-in">
+//             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+//               <div className="md:col-span-2 bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-3xl shadow-xl">
+//                  <h2 className="text-4xl font-black">{auditData.ticker}</h2>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+// // Final Export: Ye Next.js ke error ko solve kar dega
+// export default function QuantAuditPage() {
+//   return (
+//     <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading Audit Core...</div>}>
+//       <AuditContent />
+//     </Suspense>
+//   );
+// }
+
+
+
+
+
+
+
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
@@ -415,15 +581,59 @@ interface AuditData {
   reasoning: string;
 }
 
-// Ye component pura tumhara original logic handle karega
+// 1. Core Logic Component: Iske andar useSearchParams safe chalega
 function AuditContent() {
   const searchParams = useSearchParams();
   const [ticker, setTicker] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [auditData, setAuditData] = useState<AuditData | null>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
 
+  // Unified Polling aur Fetching Logic
+  const runAudit = async (tickerValue: string) => {
+    if (!tickerValue.trim()) return;
+    setLoading(true);
+    setError(null);
+    setAuditData(null);
+    
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+      
+      // Task start request trigger kiya
+      const res = await fetch(`${backendUrl}/api/full-audit/${tickerValue.toUpperCase()}`);
+      if (!res.ok) throw new Error("Backend failed to start audit.");
+      
+      const { task_id } = await res.json();
+
+      // Polling start: Har 3 second mein status check hoga
+      const interval = setInterval(async () => {
+        try {
+          const statusRes = await fetch(`${backendUrl}/api/audit-status/${task_id}`);
+          if (!statusRes.ok) return; // Retry on next tick if temporary network glitch
+          
+          const data = await statusRes.json();
+
+          if (data.status === 'completed') {
+            clearInterval(interval);
+            setAuditData(data.result);
+            setLoading(false);
+          } else if (data.status === 'failed') {
+            clearInterval(interval);
+            setError("AI Audit engine failed to compile metrics.");
+            setLoading(false);
+          }
+        } catch (pollErr) {
+          console.error("Polling error slot:", pollErr);
+        }
+      }, 3000);
+      
+    } catch (err: any) {
+      setError(err.message || "Something went wrong while connecting to the AI core.");
+      setLoading(false);
+    }
+  };
+
+  // URL Query parameter detect karne ke liye
   useEffect(() => {
     const tickerFromUrl = searchParams.get("ticker");
     if (tickerFromUrl) {
@@ -432,65 +642,10 @@ function AuditContent() {
     }
   }, [searchParams]);
 
-  const runAudit = async (tickerValue: string) => {
-    if (!tickerValue.trim()) return;
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // 1. Task start request
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/full-audit/${tickerValue.toUpperCase()}`);
-      if (!res.ok) throw new Error("Backend failed to start audit.");
-      
-      const { task_id } = await res.json();
-
-      // 2. Polling start karo
-      const interval = setInterval(async () => {
-        const statusRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit-status/${task_id}`);
-        const data = await statusRes.json();
-
-        if (data.status === 'completed') {
-          clearInterval(interval);
-          setAuditData(data.result);
-          setLoading(false);
-        } else if (data.status === 'failed') {
-          clearInterval(interval);
-          setError("AI Audit failed.");
-          setLoading(false);
-        }
-      }, 3000); // Har 3 second
-    } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
-    }
-  };
-
-  const handleRunAudit = async () => {
+  // Input Box Manual Submit Action handler
+  const handleRunAudit = () => {
     if (!ticker.trim()) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/full-audit/${ticker.toUpperCase()}`);
-      if (!response.ok) throw new Error("Backend server responded with an error");
-      const data = await response.json();
-      setAuditData(data);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong while connecting to the AI core.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const isLayerPassed = (layerKey: string): boolean => {
-    if (!auditData || !auditData.canslim_layers) return false;
-    const value = auditData.canslim_layers[layerKey];
-    if (typeof value === "boolean") return value;
-    if (typeof value === "number") return value === 1;
-    if (typeof value === "string") {
-      const normalized = value.toLowerCase().trim();
-      return normalized === "true" || normalized === "pass" || normalized === "bullish" || normalized === "yes" || normalized === "1";
-    }
-    return false;
+    runAudit(ticker);
   };
 
   const layers = [
@@ -503,12 +658,11 @@ function AuditContent() {
     { key: "M", name: "Market Direction", desc: "Confirms if overall market environment is safe and in an uptrend" },
   ];
 
-  const displayedScore = auditData ? auditData.score : 0;
-  const isPositive = auditData && (auditData.change_percent ?? 0) >= 0;
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-4 md:p-12 selection:bg-indigo-500 selection:text-white">
       <div className="max-w-5xl mx-auto space-y-10">
+        
+        {/* Header UI */}
         <div className="text-center space-y-2">
           <div className="mx-auto w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
             <Zap className="w-6 h-6 text-white fill-white" />
@@ -518,6 +672,7 @@ function AuditContent() {
           </h1>
         </div>
 
+        {/* Input Field Control */}
         <div className="bg-white p-2.5 rounded-2xl shadow-xl border border-slate-100 max-w-xl mx-auto flex items-center justify-between pl-5 gap-3">
           <input
             type="text"
@@ -527,18 +682,67 @@ function AuditContent() {
             className="w-full font-extrabold uppercase tracking-wider text-slate-800 placeholder-slate-300 focus:outline-none text-base bg-transparent"
             onKeyDown={(e) => e.key === "Enter" && handleRunAudit()}
           />
-          <button onClick={handleRunAudit} disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold px-6 py-3 rounded-xl flex items-center gap-2 shadow-md transition-all active:scale-95 text-xs uppercase tracking-wider whitespace-nowrap">
-            {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> AUDITING...</> : <><Zap className="w-4 h-4 fill-white text-indigo-600" /> Run Audit</>}
+          <button 
+            onClick={handleRunAudit} 
+            disabled={loading} 
+            className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold px-6 py-3 rounded-xl flex items-center gap-2 shadow-md transition-all active:scale-95 text-xs uppercase tracking-wider whitespace-nowrap"
+          >
+            {loading ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> AUDITING...</>
+            ) : (
+              <><Zap className="w-4 h-4 fill-white text-indigo-600" /> Run Audit</>
+            )}
           </button>
         </div>
 
-        {error && <div className="bg-rose-50 border border-rose-200 rounded-2xl p-5 text-center max-w-xl mx-auto shadow-sm"><ShieldAlert className="w-8 h-8 text-rose-500 mx-auto mb-2" /><p className="text-rose-600 text-[11px] font-medium uppercase">{error}</p></div>}
+        {/* Error Alert Display Block */}
+        {error && (
+          <div className="bg-rose-50 border border-rose-200 rounded-2xl p-5 text-center max-w-xl mx-auto shadow-sm">
+            <ShieldAlert className="w-8 h-8 text-rose-500 mx-auto mb-2" />
+            <p className="text-rose-600 text-[11px] font-medium uppercase">{error}</p>
+          </div>
+        )}
 
+        {/* Audit Results Dashboard Render */}
         {auditData && !loading && (
           <div className="space-y-6 animate-fade-in">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-2 bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-3xl shadow-xl">
-                 <h2 className="text-4xl font-black">{auditData.ticker}</h2>
+                 <h2 className="text-4xl font-black tracking-tight">{auditData.ticker}</h2>
+                 <p className="text-slate-400 font-medium text-xs mt-1 uppercase tracking-wider">CANSLIM Engine Verification Result</p>
+                 
+                 {/* Live price metric placeholder snippet */}
+                 {auditData.live_price && (
+                   <div className="mt-4 flex items-center space-x-2">
+                     <span className="text-2xl font-bold">₹{auditData.live_price}</span>
+                     {auditData.change_percent !== undefined && (
+                       <span className={`text-sm flex items-center ${auditData.change_percent >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                         {auditData.change_percent >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                         {auditData.change_percent}%
+                       </span>
+                     )}
+                   </div>
+                 )}
+              </div>
+              
+              {/* Verdict / Summary Box */}
+              <div className="bg-white p-6 rounded-3xl shadow-xl border border-slate-100 flex flex-col justify-between">
+                <div>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">System Score Matrix</span>
+                  <div className="text-5xl font-black text-slate-900 mt-1">{auditData.score}<span className="text-lg text-slate-300">/100</span></div>
+                </div>
+                <div className="mt-4">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Final Action Verdict</span>
+                  <div className="text-xl font-black text-indigo-600 uppercase mt-0.5 tracking-tight">{auditData.verdict}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Reasoning Text Markdown Holder Container */}
+            <div className="bg-slate-900 text-slate-100 p-6 rounded-3xl border border-slate-800 shadow-xl">
+              <span className="text-[10px] font-bold tracking-widest uppercase text-indigo-400">AI Deep Assessment Logs</span>
+              <div className="mt-3 text-sm leading-relaxed font-medium whitespace-pre-wrap text-slate-300">
+                {auditData.reasoning}
               </div>
             </div>
           </div>
@@ -548,10 +752,10 @@ function AuditContent() {
   );
 }
 
-// Final Export: Ye Next.js ke error ko solve kar dega
+// 2. Pure Static Wrapper Root Export (Next.js compilation error bypass shield)
 export default function QuantAuditPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading Audit Core...</div>}>
+    <Suspense fallback={<div className="flex h-screen w-screen items-center justify-center font-bold text-slate-500 text-sm tracking-wider uppercase bg-slate-50">Loading Quant Audit Core...</div>}>
       <AuditContent />
     </Suspense>
   );
