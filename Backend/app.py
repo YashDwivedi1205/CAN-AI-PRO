@@ -64,18 +64,6 @@ else:
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True) # Sirf itna kaafi hai, baaki sab hata do
 
-@app.after_request
-def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = '*'
-    return response
-
-@app.before_request
-def handle_options_request():
-    if request.method == 'OPTIONS':
-        return '', 200
-
 # ================================
 # 2. PROXY MECHANISM (GATEWAY)
 # ================================
